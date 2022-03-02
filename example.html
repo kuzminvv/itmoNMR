@@ -1,4 +1,38 @@
 <html>
+<script>
+
+//4 константы с пресетами - Влад
+const glassOfWaterPreset = [10, 20, 30];
+
+function fft(){
+	
+}
+
+function imageGenerate(){
+  
+}
+
+function calculate(){
+
+
+  var test;
+  test = glassOfWaterPreset[1] + glassOfWaterPreset[2] + glassOfWaterPreset[0];
+
+  //преобразование фурье 
+  
+
+  //функция которая генерит изображение результата
+  imageGenerate ();
+
+
+  alert("Все хорошо");
+}
+
+
+
+calculate();
+</script>
+
   <form>
   <p>Выберите объект исслевания:</p>
   <div>
@@ -18,11 +52,26 @@
      name="brain">
     <label for="liver">Мозг</label>
   </div>
+
+<br /><br />
+Здесь будут градиенты
+<br /><br />
+
   <div>
-    <button type="submit">Submit</button>
+    <button type="submit" onclick = "calculate()">Play</button>
   </div>
+
+Визуализация К-пространства <br />
+<img src="https://scientificrussia.ru/images/j/15hj-full.jpg" height="100px" width="50px"></img>
+
+Изображение результата<br />
+<img src="https://scientificrussia.ru/images/j/15hj-full.jpg" height="100px" width="50px"></img>
+
+
 </form>
-  
-<!-- <script>alert('Здесь текст');</script>-->
+ 
+
+
+<!-- -->
 
 </html>

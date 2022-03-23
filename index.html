@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>MRT</title>
+    <script>
+        const glassOfWaterPreset = [10, 20, 30];
+        function fft () {
+
+        }
+        function imageGenerate(){
+
+        }
+
+        function calculate(){
+
+
+            var test;
+            test = glassOfWaterPreset[1] + glassOfWaterPreset[2] + glassOfWaterPreset[0];
+
+            //преобразование фурье
+
+
+            //функция которая генерит изображение результата
+            imageGenerate ();
+            setTimeout(()=> {
+                document.querySelector('.js-submit').classList.add('show')
+            }, 3000)
+        }
+        calculate();
+    </script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <main>
+        <div class="forms">
+            <div class="block">
+                <h2>Выберите объект исследования:</h2>
+                <form>
+                    <input type="radio" id="glassOfWater" name="glassOfWater">
+                    <label for="glassOfWater">Стакан воды</label>
+
+                    <input type="radio" id="Apple" name="Apple">
+                    <label for="Apple">Яблоко</label>
+
+                    <input type="radio" id="liver" name="liver">
+                    <label for="liver">Печень</label>
+
+                    <input type="radio" id="brain" name="brain">
+                    <label for="brain">Мозг</label>
+                </form>
+            </div>
+            <div class="block">
+                <h2>Выберите тип градиента:</h2>
+                <form>
+                    <input type="radio" id="Snake" name="Snake" >
+                    <label for="Snake">Змейка</label>
+
+                    <input type="radio" id="Circles" name="Circles">
+                    <label for="Circles">Круги</label>
+
+                    <input type="radio" id="Spiral" name="Spiral">
+                    <label for="Spiral">Спираль</label>
+                </form>
+            </div>
+        </div>
+        <button class="js-submit" type="submit" onclick="calculate()">Старт</button>
+        <div class="loader">
+            <img src="./loader.svg" alt="">
+        </div>
+        <div class="result js-result">
+            <h2>Визуализация К-пространства</h2>
+            <img src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Визуализация К-пространства">
+            <h2>Изображение результата</h2>
+            <img src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Изображение результата">
+        </div>
+    </main>
+</body>
+</html>

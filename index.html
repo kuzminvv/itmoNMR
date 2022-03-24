@@ -3,77 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <title>MRT</title>
-    <script>
-        const glassOfWaterPreset = [10, 20, 30];
-        function fft () {
-
-        }
-        function imageGenerate(){
-
-        }
-
-        function calculate(){
-
-
-            var test;
-            test = glassOfWaterPreset[1] + glassOfWaterPreset[2] + glassOfWaterPreset[0];
-
-            //преобразование фурье
-
-
-            //функция которая генерит изображение результата
-            imageGenerate ();
-            setTimeout(()=> {
-                document.querySelector('.js-submit').classList.add('show')
-            }, 3000)
-        }
-        calculate();
-    </script>
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <main>
+        <h1 class="title">Заголовок</h1>
         <div class="forms">
-            <div class="block">
-                <h2>Выберите объект исследования:</h2>
-                <form>
-                    <input type="radio" id="glassOfWater" name="glassOfWater">
-                    <label for="glassOfWater">Стакан воды</label>
-
-                    <input type="radio" id="Apple" name="Apple">
-                    <label for="Apple">Яблоко</label>
-
-                    <input type="radio" id="liver" name="liver">
-                    <label for="liver">Печень</label>
-
-                    <input type="radio" id="brain" name="brain">
-                    <label for="brain">Мозг</label>
-                </form>
-            </div>
-            <div class="block">
-                <h2>Выберите тип градиента:</h2>
-                <form>
-                    <input type="radio" id="Snake" name="Snake" >
-                    <label for="Snake">Змейка</label>
-
-                    <input type="radio" id="Circles" name="Circles">
-                    <label for="Circles">Круги</label>
-
-                    <input type="radio" id="Spiral" name="Spiral">
-                    <label for="Spiral">Спираль</label>
-                </form>
-            </div>
+            <form class="form">
+                <h2 class="form__title">Выберите объект исследования:</h2>
+                <label class="radio">Стакан воды
+                    <input type="radio" checked="checked" name="object" value="glassOfWater">
+                    <span class="radio__mark"></span>
+                </label>
+                <label class="radio">Яблоко
+                    <input type="radio" name="object" value="apple">
+                    <span class="radio__mark"></span>
+                </label>
+                <label class="radio">Печень
+                    <input type="radio" name="object" value="liver">
+                    <span class="radio__mark"></span>
+                </label>
+                <label class="radio">Мозг
+                    <input type="radio" name="object" value="brain">
+                    <span class="radio__mark"></span>
+                </label>
+            </form>
+            <form class="form">
+                <h2 class="form__title">Выберите тип градиента:</h2>
+                <label class="radio">Змейка
+                    <input type="radio" checked="checked" name="gradient" value="snake" >
+                    <span class="radio__mark"></span>
+                </label>
+                <label class="radio">Круги
+                    <input type="radio" name="gradient" value="circles">
+                    <span class="radio__mark"></span>
+                </label>
+                <label class="radio">Спираль
+                    <input type="radio" name="gradient" value="spiral">
+                    <span class="radio__mark"></span>
+                </label>
+            </form>
         </div>
-        <button class="js-submit" type="submit" onclick="calculate()">Старт</button>
-        <div class="loader">
-            <img src="./loader.svg" alt="">
+        <div class="button js-button">
+            <button class="button__submit js-submit" type="submit">Старт</button>
         </div>
-        <div class="result js-result">
-            <h2>Визуализация К-пространства</h2>
-            <img src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Визуализация К-пространства">
-            <h2>Изображение результата</h2>
-            <img src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Изображение результата">
+        <div class="loader js-loader is-hidden">
+            <img src="./img/loader.svg" alt="Loader">
+        </div>
+        <div class="error js-error is-hidden">
+            <img class="error__img" src="./img/error.svg" alt="">
+            <span class="error__text">При загрузке данных произошла ошибка</span>
+        </div>
+        <div class="result js-result is-hidden">
+            <div class="result__block">
+                <h2 class="result__title">Визуализация К-пространства</h2>
+                <img class="result__img" src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Визуализация К-пространства">
+            </div>
+            <div class="result__block">
+                <h2 class="result__title">Изображение результата</h2>
+                <img class="result__img" src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Изображение результата">
+            </div>
         </div>
     </main>
+    <script type="text/javascript" src="./scripts.js"></script>
 </body>
 </html>

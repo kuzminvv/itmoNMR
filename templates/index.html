@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>MRT</title>
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+
 </head>
 <body>
     <main>
         <h1 class="title">Заголовок</h1>
         <div class="forms">
-            <form class="form">
+            <form class="form" action="/run" method="post">
                 <h2 class="form__title">Выберите объект исследования:</h2>
                 <label class="radio">Стакан воды
                     <input type="radio" checked="checked" name="object" value="glassOfWater">
@@ -27,6 +29,7 @@
                     <input type="radio" name="object" value="brain">
                     <span class="radio__mark"></span>
                 </label>
+                  <button class="" type="submit">Старт</button>
             </form>
             <form class="form">
                 <h2 class="form__title">Выберите тип градиента:</h2>
@@ -44,6 +47,10 @@
                 </label>
             </form>
         </div>
+
+
+
+
         <div class="button js-button">
             <button class="button__submit js-submit" type="submit">Старт</button>
         </div>

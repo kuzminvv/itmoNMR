@@ -5,5 +5,5 @@ services:
     ports:
       - "80:5000"
     volumes:
-      - /Users/slava/mri:/app
+      - /Users/slava/Documents/GitHub/itmoNMR:/app
     command: "sh -c 'pip install flask && pip install matplotlib && pip install numpy && python mri.py'"

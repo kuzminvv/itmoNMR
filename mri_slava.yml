@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  mri_python:
+    image: bitnami/python:latest
+    ports:
+      - "80:5000"
+    volumes:
+      - /Users/slava/Documents/GitHub/itmoNMR:/app
+    command: "sh -c 'pip install flask && pip install matplotlib && pip install numpy && python mri.py'"

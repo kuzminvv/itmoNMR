@@ -27,7 +27,7 @@ def response():
 
 		gradient = request.form.get('gradient')
 		object = request.form.get('object')
-		
+
 		file = open("static_data/"+object+".csv")
 
 		t2 = np.loadtxt(file, delimiter=",")
@@ -86,8 +86,9 @@ def response():
 		plt.savefig('saved_figure.png')
 
 
-
+		return render_template('index.html', array_size=np.shape(t2)[0], object=object)
 		return "<h1>The object value is: {}</h1><h1>The gradient value is: {}</h1><h1>Array size is{}</h1>".format(object, gradient, np.shape(t2)[0])
+
 
 
 app.run(host='0.0.0.0', port=5000)

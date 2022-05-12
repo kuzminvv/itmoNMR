@@ -1,6 +1,4 @@
-from flask import Flask
-from flask import render_template
-from flask import request
+from flask import Flask, render_template, request
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -86,7 +84,7 @@ def response():
 		plt.savefig('saved_figure.png')
 
 
-		return render_template('index.html', array_size=np.shape(t2)[0], object=object)
+		return render_template('index.html', array_size=np.shape(t2)[0], object=object, gradient=gradient)
 		return "<h1>The object value is: {}</h1><h1>The gradient value is: {}</h1><h1>Array size is{}</h1>".format(object, gradient, np.shape(t2)[0])
 
 

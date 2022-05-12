@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>MRT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts.js') }}"></script>
 
 </head>
 <body>
@@ -13,36 +13,64 @@
         <div class="forms">
             <form class="form" action="/run" method="post">
                 <h2 class="form__title">Выберите объект исследования:</h2>
-                <label class="radio">Стакан воды
+                <label class="radio">Стакан воды (нет датасета, будет неверное вычисление)
+                    {% if object == "glassOfWater" or object is not defined %}
                     <input type="radio" checked="checked" name="object" value="glassOfWater">
+                    {% else %}
+                    <input type="radio" name="object" value="glassOfWater">
+                    {% endif %}
                     <span class="radio__mark"></span>
                 </label>
                 <label class="radio">Ананас
+                    {% if object == "pine" %}
+                    <input type="radio" checked="checked" name="object" value="pine">
+                    {% else %}
                     <input type="radio" name="object" value="pine">
+                    {% endif %}
                     <span class="radio__mark"></span>
                 </label>
                 <label class="radio">Лук
-                    <input type="radio" name="object" value="onion">
-                    <span class="radio__mark"></span>
+                  {% if object == "onion" %}
+                  <input type="radio" checked="checked" name="object" value="onion">
+                  {% else %}
+                  <input type="radio" name="object" value="onion">
+                  {% endif %}
+                  <span class="radio__mark"></span>
                 </label>
-                <label class="radio">Мозг
-                    <input type="radio" name="object" value="brain">
-                    <span class="radio__mark"></span>
+                <label class="radio">Мозг человека
+                  {% if object == "brain" %}
+                  <input type="radio" checked="checked" name="object" value="brain">
+                  {% else %}
+                  <input type="radio" name="object" value="brain">
+                  {% endif %}
+                  <span class="radio__mark"></span>
                 </label>
 
 
 
                 <h2 class="form__title">Выберите тип градиента:</h2>
                 <label class="radio">Змейка
+                    {% if gradient == "snake" or gradient is not defined %}
                     <input type="radio" checked="checked" name="gradient" value="snake" >
+                    {% else %}
+                    <input type="radio" name="gradient" value="snake" >
+                    {% endif %}
                     <span class="radio__mark"></span>
                 </label>
                 <label class="radio">Круги
-                    <input type="radio" name="gradient" value="circles">
+                    {% if gradient == "circles" %}
+                    <input type="radio" checked="checked" name="gradient" value="circles" >
+                    {% else %}
+                    <input type="radio" name="gradient" value="circles" >
+                    {% endif %}
                     <span class="radio__mark"></span>
                 </label>
                 <label class="radio">Спираль
-                    <input type="radio" name="gradient" value="spiral">
+                    {% if gradient == "spiral" %}
+                    <input type="radio" checked="checked" name="gradient" value="spiral" >
+                    {% else %}
+                    <input type="radio" name="gradient" value="spiral" >
+                    {% endif %}
                     <span class="radio__mark"></span>
                 </label>
                 <button class="" type="submit">Старт</button>
@@ -50,16 +78,16 @@
         </div>
 
 
-<h2>{{ array_size }}</h2>
+<h2>debug {{ array_size }}, {{ object }}, {{ gradient }}</h2>
 
         <div class="button js-button">
             <button class="button__submit js-submit" type="submit">Старт</button>
         </div>
         <div class="loader js-loader is-hidden">
-            <img src="./img/loader.svg" alt="Loader">
+            <img src="{{ url_for('static', filename='img/loader.svg') }}" alt="Loader">
         </div>
         <div class="error js-error is-hidden">
-            <img class="error__img" src="./img/error.svg" alt="">
+            <img class="error__img" src="{{ url_for('static', filename='img/error.svg') }} " alt="">
             <span class="error__text">При загрузке данных произошла ошибка</span>
         </div>
         <div class="result js-result is-hidden">
@@ -73,6 +101,6 @@
             </div>
         </div>
     </main>
-    <script type="text/javascript" src="./scripts.js"></script>
+
 </body>
 </html>

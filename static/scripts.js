@@ -25,8 +25,8 @@ window.onload = () => {
         console.log('object', $object.value);
         console.log('gradient', $gradient.value);
 
-        var test;
-        test = glassOfWaterPreset[1] + glassOfWaterPreset[2] + glassOfWaterPreset[0];
+        //var test;
+        //test = glassOfWaterPreset[1] + glassOfWaterPreset[2] + glassOfWaterPreset[0];
 
         //преобразование фурье
         fft();
@@ -39,11 +39,11 @@ window.onload = () => {
         $result.classList.add('is-hidden')
         $loader.classList.remove('is-hidden')
 
-        fetch("https://reqbin.com/echo/post/json", {
+        fetch(".../run", {
             method: "POST",
             body: {
                 object: $object.value,
-                    gradient: $gradient.value
+                gradient: $gradient.value
             }
         }).then(
             response => response.json()

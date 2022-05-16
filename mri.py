@@ -12,6 +12,29 @@ def helloIndex():
 def template():
     return render_template('index.html')
 
+@app.route('/run_new', methods=['GET', 'POST'])
+def response_new():
+	'''
+    Обработчик, который принимает данные от пользователя,
+     и возвращает обновлённую с ними
+    object = request.form.get("object")
+    gradient = request.form.get("gradient")
+	'''
+
+	if request.method == 'POST':
+
+		gradient = request.form.get('gradient')
+		object = request.form.get('object')
+
+		file = open("static_data/"+object+".csv")
+
+		t2 = np.loadtxt(file, delimiter=",")
+
+
+
+
+		return render_template('index.html', object=object, gradient=gradient)
+
 @app.route('/run', methods=['GET', 'POST'])
 def response():
 	'''
@@ -26,7 +49,7 @@ def response():
 		gradient = request.form.get('gradient')
 		object = request.form.get('object')
 
-		file = open("static_data/"+object+".csv")
+		file = open("static_data/"+str(object)+".csv")
 
 		t2 = np.loadtxt(file, delimiter=",")
 

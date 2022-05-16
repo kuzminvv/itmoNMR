@@ -5,13 +5,12 @@
     <title>MRT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='scripts.js') }}"></script>
-
 </head>
 <body>
     <main>
         <h1 class="title">Заголовок</h1>
         <div class="forms">
-            <form class="form" action="/run" method="post">
+            <form class="form" action="/run_new" method="post">
                 <h2 class="form__title">Выберите объект исследования:</h2>
                 <label class="radio">Стакан воды (нет датасета, будет неверное вычисление)
                     {% if object == "glassOfWater" or object is not defined %}
@@ -46,8 +45,6 @@
                   <span class="radio__mark"></span>
                 </label>
 
-
-
                 <h2 class="form__title">Выберите тип градиента:</h2>
                 <label class="radio">Змейка
                     {% if gradient == "snake" or gradient is not defined %}
@@ -77,7 +74,6 @@
             </form>
         </div>
 
-
 <h2>debug {{ array_size }}, {{ object }}, {{ gradient }}</h2>
 
         <div class="button js-button">
@@ -101,6 +97,5 @@
             </div>
         </div>
     </main>
-
 </body>
 </html>

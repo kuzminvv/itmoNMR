@@ -6,4 +6,4 @@ services:
       - "80:5000"
     volumes:
       - C:/Users/User/Documents/GitHub/itmoNMR:/app
-    command: "sh -c 'pip install flask && pip install matplotlib && pip install numpy && pip install scipy && python mri_new.py'"
+    command: "sh -c 'pip install flask && pip install matplotlib && pip install numpy && pip install scipy && python mri.py'"

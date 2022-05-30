@@ -7,8 +7,6 @@ window.onload = () => {
     const $result = document.querySelector('.js-result');
     const $error = document.querySelector('.js-error');
 
-    const $object = document.querySelector('input[type=radio][name=object]:checked');
-    const $gradient = document.querySelector('input[type=radio][name=gradient]:checked');
 
     // Engine functions
 
@@ -21,6 +19,8 @@ window.onload = () => {
     }
 
     async function calculate(){
+      const $object = document.querySelector('input[type=radio][name=object]:checked');
+      const $gradient = document.querySelector('input[type=radio][name=gradient]:checked');
 
         console.log('object', $object.value);
         console.log('gradient', $gradient.value);
@@ -36,7 +36,7 @@ window.onload = () => {
         $result.classList.add('is-hidden')
         $loader.classList.remove('is-hidden')
 
-        fetch("/run", {
+        fetch("/run_new", {
             method: "POST",
             body: {
                 object: $object.value,

@@ -4,7 +4,6 @@ import numpy as np
 # import scipy
 from scipy.integrate import simps
 from numpy import inf
-from copy import deepcopy
 
 app = Flask(__name__)
 
@@ -130,7 +129,7 @@ def response_new():
 		for i in range(t2_test.shape[0]):
 			for j in range(t2_test.shape[1]):
 				if t2_test[i,j]!=0:
-					Mt[i,j]=t2_test[i,j]*0.1
+					Mt[i,j]=1
 
 
 		# Mz = np.zeros(shape=t1_test.shape)
@@ -147,12 +146,14 @@ def response_new():
 		t = np.linspace(0,N,N)
 
 		xx, yy = rectangular_grid(t2_test,t2_test,resolution)
+		xv, yv = np.meshgrid(xx,yy)
+		rect = xv + 1j*yv
 		Mt_evo = np.zeros(shape=(Mt.shape[0],Mt.shape[1]),dtype=complex)
 		# Mz_evo = np.zeros(shape=(Mz.shape[0],Mz.shape[1]),dtype=complex)
 		k_map = k_space(FOV1, resolution)
 		traj = k_space(FOV1, resolution)
 
-		for k in range(1,200,3):
+		for k in range(1,N,3):
 
 			#EPI
 			t_int = k
@@ -160,16 +161,10 @@ def response_new():
 			ky_coord = simps(GTy[:k]) * gamma / 2 / np.pi/1e6
 			k_i, k_j = find_coord(kx_coord, ky_coord, FOV1, resolution)
 
-			t_buf = deepcopy(t2_test)
-			t_buf[t2_test==0] = np.NaN
-			t_buf = np.exp(-t[k]*1e-6/t_buf)
-			t_buf[np.isnan(t_buf)]=0
-			Mt_evo = Mt * t_buf * np.exp(-1j*2*np.pi*(kx_coord*xx+ky_coord*yy))
+			Mt_evo = Mt * np.exp(-t[k]*1e-6/t2_test) * np.exp(-1j*2*np.pi*(kx_coord*rect.imag+ky_coord*rect.real))
 
-
-			if abs(k_map[k_i,k_j])==0:
-				k_map[k_i,k_j] = signal(Mt_evo, t2_test)
-				traj[k_i, k_j] = 1+0*1j
+			k_map[k_i,k_j] = signal(Mt_evo, t2_test)
+			traj[k_i, k_j] = 1+0*1j
 
 		#image reconstruction from k-space
 		k_map_fft = np.fft.fftshift(k_map)

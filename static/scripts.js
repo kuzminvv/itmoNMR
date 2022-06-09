@@ -1,65 +1,40 @@
-window.onload = () => {
-
-    // DOM Elements
-    const $submit = document.querySelector('.js-submit');
-    const $button = document.querySelector('.js-button');
-    const $loader = document.querySelector('.js-loader');
-    const $result = document.querySelector('.js-result');
-    const $error = document.querySelector('.js-error');
-
-
-    // Engine functions
+$(document).ready(function() {
 
     const glassOfWaterPreset = [10, 20, 30];
-    function fft () {
 
-    }
-    function imageGenerate(){
+    const form = $("#sendData");
+    const loading = $("#loading");
+    const resultImg = $("#resultImg");
+    const errorImg = $("#errorMessage");
 
-    }
+    form.submit(function(e) {
+        e.preventDefault();
+        const data = $("#sendData").serialize();
+        
+        resultImg.addClass('is-hidden');
+        errorImg.addClass('is-hidden');
+        loading.removeClass('is-hidden');
 
-    async function calculate(){
-      const $object = document.querySelector('input[type=radio][name=object]:checked');
-      const $gradient = document.querySelector('input[type=radio][name=gradient]:checked');
+        $.ajax({
+            url: "/run_new",
+            data: data,
+            method: 'POST',
+            success: function(response) {
+                loading.addClass('is-hidden');
+                $("#resultImg0").attr('src', `data:image/png;base64,${response.img0}`);
+                $("#resultImg1").attr('src', `data:image/png;base64,${response.img1}`);
+                $("#resultImg2").attr('src', `data:image/png;base64,${response.img2}`);
+                resultImg.removeClass('is-hidden');
 
-        console.log('object', $object.value);
-        console.log('gradient', $gradient.value);
-
-        //преобразование фурье
-        fft();
-
-        //функция которая генерит изображение результата
-        imageGenerate ();
-
-        $button.classList.add('is-hidden')
-        $error.classList.add('is-hidden')
-        $result.classList.add('is-hidden')
-        $loader.classList.remove('is-hidden')
-
-        fetch("/run_new", {
-            method: "POST",
-            body: {
-                object: $object.value,
-                gradient: $gradient.value
+            },
+            error: function(response) {
+                loading.addClass('is-hidden');
+                errorImg.removeClass('is-hidden');
+                console.log(response);
             }
-        }).then(
-            response => response.json()
-        ).then(
-            json => {
-                console.log(json);
-                $button.classList.remove('is-hidden')
-                $result.classList.remove('is-hidden')
-                $loader.classList.add('is-hidden')
-            }
-        ).catch(e => {
-            $button.classList.remove('is-hidden')
-            $error.classList.remove('is-hidden')
-            $loader.classList.add('is-hidden')
-        });
-    }
-
-    // DOM event functions
-    $submit.addEventListener('click', () => {
-        calculate();
+        })
     });
-}
+
+    $("#sumbitForm").on('click', function() { form.submit(); })
+
+});

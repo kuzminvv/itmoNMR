@@ -1,9 +1,12 @@
+import base64
 from flask import Flask, render_template, request
 import matplotlib.pyplot as plt
 import numpy as np
 # import scipy
 from scipy.integrate import simps
 from numpy import inf
+import io
+
 
 app = Flask(__name__)
 
@@ -28,6 +31,8 @@ def response_new():
 
 		gradient = request.form.get('gradient')
 		object = request.form.get('object')
+		grad_k_max = int(request.form.get('k_max'))*0.01
+		dk = request.form.get('dk')
 
 		file = open("static_data/"+object+".csv")
 
@@ -56,7 +61,7 @@ def response_new():
 			return k_map
 
 
-		def EPI_center(FOV1, resolution):
+		def EPI_center(FOV1, resolution, grad_k_max):
 			k_map = k_space(FOV1, resolution)
 
 			k_fov_x = 1/resolution #1/mm
@@ -71,10 +76,13 @@ def response_new():
 			k_x_max = k_fov_x/2 #1/mm
 			k_y_max = k_fov_y/2 #1/mm
 
-			t1_x = k_x_max/10 * 2 * np.pi / gamma / Gx #sec
-			t1_y = k_y_max/10 * 2 * np.pi / gamma / Gy #sec
+			t1_x = grad_k_max * k_x_max * 2 * np.pi / gamma / Gx #sec
+			t1_y = grad_k_max * k_y_max * 2 * np.pi / gamma / Gy #sec
+			t2_x = grad_k_max * 2 * k_x_max * 2 * np.pi / gamma / Gx #sec
 
-			t2_x = 2 * k_x_max/10 * 2 * np.pi / gamma / Gx #sec
+			# t1_x = k_x_max/10 * 2 * np.pi / gamma / Gx #sec
+			# t1_y = k_y_max/10 * 2 * np.pi / gamma / Gy #sec
+			# t2_x = 2 * k_x_max/10 * 2 * np.pi / gamma / Gx #sec
 
 			t3_y = dk_y * 2 * np.pi / gamma / Gy #sec
 
@@ -141,7 +149,7 @@ def response_new():
 		# 			Mz[i,j]=t1_test[i,j]*0.1
 
 
-		GTx, GTy = EPI_center(t2_test.shape, resolution)
+		GTx, GTy = EPI_center(t2_test.shape, resolution, grad_k_max)
 		N = round(GTx.shape[0])
 		t = np.linspace(0,N,N)
 
@@ -171,13 +179,39 @@ def response_new():
 		k_map_ifft = np.fft.ifft2(k_map_fft)
 		k_map_fft = np.fft.fftshift(k_map_ifft)
 
-		plt.imshow(abs(k_map_fft))
-		plt.savefig('t_map_figure.png')
-
 		plt.imshow(abs(traj))
-		plt.savefig('k_map_figure.png')
+		buf = io.BytesIO()
+		plt.savefig(buf, format='png')
+		buf.seek(0)
+		img0 = base64.b64encode(buf.getvalue()).decode() 
+		# plt.savefig('k_map_figure.png')
 
-		return render_template('index.html', object=object, gradient=gradient)
+
+		plt.imshow(abs(k_map))
+		# plt.savefig('t_map_figure.png')
+		buf = io.BytesIO()
+		plt.savefig(buf, format='png')
+		buf.seek(0)
+		img1 = base64.b64encode(buf.getvalue()).decode() 
+
+
+		plt.imshow(abs(k_map_fft))
+		# plt.savefig('t_map_figure.png')
+		buf = io.BytesIO()
+		plt.savefig(buf, format='png')
+		buf.seek(0)
+		img2 = base64.b64encode(buf.getvalue()).decode() 
+
+
+
+		return {
+			'img0': img0,
+			'img1': img1,
+			'img2': img2
+
+		}
+
+		# return render_template('index.html', object=object, gradient=gradient)
 
 @app.route('/run', methods=['GET', 'POST'])
 def response():

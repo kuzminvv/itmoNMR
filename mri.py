@@ -28,7 +28,8 @@ def response_0_img():
 		gradient = request.form.get('gradient')
 		object = request.form.get('object')
 		grad_k_max = int(request.form.get('k_max'))*0.01
-		dk = request.form.get('dk')
+		dk = int(request.form.get('dk'))
+		dt = int(request.form.get('dt'))
 
 		file = open("static_data/"+object+".csv")
 
@@ -39,12 +40,6 @@ def response_0_img():
 			x = np.linspace(-round(FOV[0]*resolution/2,1), round(FOV[0]*resolution/2,1)-resolution, FOV[0])
 			y = np.linspace(-round(FOV[1]*resolution/2,1), round(FOV[1]*resolution/2,1)-resolution, FOV[1])
 			return x, y
-
-		def signal(M, t2, resolution=0.8):
-			x, y = rectangular_grid(t2,t2,resolution)
-			M_re = simps(simps(M.real,y),x)
-			M_im = simps(simps(M.imag,y),x)
-			return M_re+1j*M_im
 
 
 		# k-space
@@ -57,7 +52,7 @@ def response_0_img():
 			return k_map
 
 
-		def EPI_center(FOV1, resolution, grad_k_max):
+		def snake_grad(FOV1, resolution, grad_k_max, dk_scale):
 			k_map = k_space(FOV1, resolution)
 
 			k_fov_x = 1/resolution #1/mm
@@ -75,25 +70,21 @@ def response_0_img():
 			t1_x = grad_k_max * k_x_max * 2 * np.pi / gamma / Gx #sec
 			t1_y = grad_k_max * k_y_max * 2 * np.pi / gamma / Gy #sec
 			t2_x = grad_k_max * 2 * k_x_max * 2 * np.pi / gamma / Gx #sec
-
-			# t1_x = k_x_max/10 * 2 * np.pi / gamma / Gx #sec
-			# t1_y = k_y_max/10 * 2 * np.pi / gamma / Gy #sec
-			# t2_x = 2 * k_x_max/10 * 2 * np.pi / gamma / Gx #sec
-
-			t3_y = dk_y * 2 * np.pi / gamma / Gy #sec
+			t3_y = dk_scale * dk_y * 2 * np.pi / gamma / Gy #sec
 
 			t1_x = round(t1_x*1e6) #mu sec
 			t1_y = round(t1_y*1e6) #mu sec
 			t2_x = round(t2_x*1e6) #mu sec
 			t3_y = round(t3_y*1e6) #mu sec
 
-			dt = round(dk_x * 2 * np.pi / gamma / Gx *1e6) #mu sec
+			# dt = round(dk_x * 2 * np.pi / gamma / Gx *1e6) #mu sec
 
 			GTx = -np.ones(shape=(t1_x,))
 			GTy = np.ones(shape=(t1_y,))
 
 			#change range number
-			for i in range(32):
+			for i in range(round(FOV1[0]*grad_k_max)+1):
+			# for i in range(32):
 				if i % 2 != 0:
 					sign = -1
 				else:
@@ -110,13 +101,19 @@ def response_0_img():
 
 			return GTx*Gx, GTy*Gy
 
+		def circles_grad(FOV1, resolution, grad_k_max):
+			pass
+
+		def spiral_grad(FOV1, resolution, grad_k_max):
+			pass
+
 		def find_coord(k_i, k_j, FOV, resolution):
 			k_x_max = 1/resolution/2 #1/mm
 			k_y_max = 1/resolution/2 #1/mm
 
 
-			kx = np.linspace(-k_x_max, k_x_max-(1/FOV1[0]), FOV1[0])
-			ky = np.linspace(-k_y_max, k_y_max-(1/FOV1[1]), FOV1[1])
+			kx = np.linspace(-k_x_max, k_x_max-(1/FOV1[0]), FOV1[0]) + 1/FOV1[0]
+			ky = np.linspace(-k_y_max, k_y_max-(1/FOV1[1]), FOV1[1]) + 1/FOV1[1]
 			ii = np.argmin(abs(kx - k_i))
 			jj = np.argmin(abs(ky - k_j))
 
@@ -124,56 +121,43 @@ def response_0_img():
 
 
 		resolution = 0.8 #mm
-		zer = np.zeros(shape=(280,28))
 		gamma = 42.57*1e6 # Hz/T
-		t2_test = np.concatenate((zer, t2, zer), axis=1)
+
+		if (max(t2.shape)-min(t2.shape)) != 0:
+			max_sh = max(t2.shape)
+			min_sh = min(t2.shape)
+			delta = max_sh - min_sh
+			if t2.shape[0] > t2.shape[1]:
+				zer = np.zeros(shape=(max_sh,delta//2))
+				t2_test = np.concatenate((zer, t2, zer), axis=1)
+			else:
+				zer = np.zeros(shape=(delta//2,max_sh))
+				t2_test = np.concatenate((zer, t2, zer), axis=0)
+		else:
+			t2_test = t2
+
 		FOV1 = t2_test.shape
 
-		Mt = np.zeros(shape=t2_test.shape)
-		for i in range(t2_test.shape[0]):
-			for j in range(t2_test.shape[1]):
-				if t2_test[i,j]!=0:
-					Mt[i,j]=1
+		#Градиенты
+		if gradient == 'snake':
+			GTx, GTy = snake_grad(t2_test.shape, resolution, grad_k_max, dk_scale)
+		elif gradient == 'circles':
+			GTx, GTy = circles_grad(t2_test.shape, resolution, grad_k_max, dk_scale)
+		else:
+			GTx, GTy = spiral_grad(t2_test.shape, resolution, grad_k_max, dk_scale)
 
-
-		# Mz = np.zeros(shape=t1_test.shape)
-		# Mz0 = np.zeros(shape=t1_test.shape)
-		# for i in range(t1_test.shape[0]):
-		# 	for j in range(t1_test.shape[1]):
-		# 		if t1_test[i,j]!=0:
-		# 			Mz0[i,j]=t1_test[i,j]
-		# 			Mz[i,j]=t1_test[i,j]*0.1
-
-
-		GTx, GTy = EPI_center(t2_test.shape, resolution, grad_k_max)
 		N = round(GTx.shape[0])
 		t = np.linspace(0,N,N)
 
-		xx, yy = rectangular_grid(t2_test,t2_test,resolution)
-		xv, yv = np.meshgrid(xx,yy)
-		rect = xv + 1j*yv
-		Mt_evo = np.zeros(shape=(Mt.shape[0],Mt.shape[1]),dtype=complex)
-		# Mz_evo = np.zeros(shape=(Mz.shape[0],Mz.shape[1]),dtype=complex)
-		k_map = k_space(FOV1, resolution)
 		traj = k_space(FOV1, resolution)
 
-		for k in range(1,N,3):
+		for k in range(1,N,dt):
 
 			#EPI
-			t_int = k
 			kx_coord = simps(GTx[:k]) * gamma / 2 / np.pi/1e6
 			ky_coord = simps(GTy[:k]) * gamma / 2 / np.pi/1e6
 			k_i, k_j = find_coord(kx_coord, ky_coord, FOV1, resolution)
-
-			Mt_evo = Mt * np.exp(-t[k]*1e-6/t2_test) * np.exp(-1j*2*np.pi*(kx_coord*rect.imag+ky_coord*rect.real))
-
-			k_map[k_i,k_j] = signal(Mt_evo, t2_test)
 			traj[k_i, k_j] = 1+0*1j
-
-		#image reconstruction from k-space
-		k_map_fft = np.fft.fftshift(k_map)
-		k_map_ifft = np.fft.ifft2(k_map_fft)
-		k_map_fft = np.fft.fftshift(k_map_ifft)
 
 		plt.imshow(abs(traj))
 		buf = io.BytesIO()
@@ -181,23 +165,6 @@ def response_0_img():
 		buf.seek(0)
 		img0 = base64.b64encode(buf.getvalue()).decode()
 		# plt.savefig('k_map_figure.png')
-
-
-		plt.imshow(abs(k_map))
-		# plt.savefig('t_map_figure.png')
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		img1 = base64.b64encode(buf.getvalue()).decode()
-
-
-		plt.imshow(abs(k_map_fft))
-		# plt.savefig('t_map_figure.png')
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		img2 = base64.b64encode(buf.getvalue()).decode()
-
 
 
 		return {
@@ -249,7 +216,7 @@ def response_new():
 			return k_map
 
 
-		def EPI_center(FOV1, resolution, grad_k_max):
+		def snake_grad(FOV1, resolution, grad_k_max, dk_scale):
 			k_map = k_space(FOV1, resolution)
 
 			k_fov_x = 1/resolution #1/mm
@@ -272,20 +239,21 @@ def response_new():
 			# t1_y = k_y_max/10 * 2 * np.pi / gamma / Gy #sec
 			# t2_x = 2 * k_x_max/10 * 2 * np.pi / gamma / Gx #sec
 
-			t3_y = dk_y * 2 * np.pi / gamma / Gy #sec
+			t3_y = dk_scale * dk_y * 2 * np.pi / gamma / Gy #sec
 
 			t1_x = round(t1_x*1e6) #mu sec
 			t1_y = round(t1_y*1e6) #mu sec
 			t2_x = round(t2_x*1e6) #mu sec
 			t3_y = round(t3_y*1e6) #mu sec
 
-			dt = round(dk_x * 2 * np.pi / gamma / Gx *1e6) #mu sec
+			# dt = round(dk_x * 2 * np.pi / gamma / Gx *1e6) #mu sec
 
 			GTx = -np.ones(shape=(t1_x,))
 			GTy = np.ones(shape=(t1_y,))
 
 			#change range number
-			for i in range(32):
+			for i in range(round(FOV1[0]*grad_k_max)+1):
+			# for i in range(32):
 				if i % 2 != 0:
 					sign = -1
 				else:
@@ -302,13 +270,19 @@ def response_new():
 
 			return GTx*Gx, GTy*Gy
 
+		def circles_grad(FOV1, resolution, grad_k_max):
+			pass
+
+		def spiral_grad(FOV1, resolution, grad_k_max):
+			pass
+
 		def find_coord(k_i, k_j, FOV, resolution):
 			k_x_max = 1/resolution/2 #1/mm
 			k_y_max = 1/resolution/2 #1/mm
 
 
-			kx = np.linspace(-k_x_max, k_x_max-(1/FOV1[0]), FOV1[0])
-			ky = np.linspace(-k_y_max, k_y_max-(1/FOV1[1]), FOV1[1])
+			kx = np.linspace(-k_x_max, k_x_max-(1/FOV1[0]), FOV1[0]) + 1/FOV1[0]
+			ky = np.linspace(-k_y_max, k_y_max-(1/FOV1[1]), FOV1[1]) + 1/FOV1[1]
 			ii = np.argmin(abs(kx - k_i))
 			jj = np.argmin(abs(ky - k_j))
 
@@ -316,11 +290,24 @@ def response_new():
 
 
 		resolution = 0.8 #mm
-		zer = np.zeros(shape=(280,28))
 		gamma = 42.57*1e6 # Hz/T
-		t2_test = np.concatenate((zer, t2, zer), axis=1)
+
+		if (max(t2.shape)-min(t2.shape)) != 0:
+			max_sh = max(t2.shape)
+			min_sh = min(t2.shape)
+			delta = max_sh - min_sh
+			if t2.shape[0] > t2.shape[1]:
+				zer = np.zeros(shape=(max_sh,delta//2))
+				t2_test = np.concatenate((zer, t2, zer), axis=1)
+			else:
+				zer = np.zeros(shape=(delta//2,max_sh))
+				t2_test = np.concatenate((zer, t2, zer), axis=0)
+		else:
+			t2_test = t2
+
 		FOV1 = t2_test.shape
 
+		# Начаальные условия
 		Mt = np.zeros(shape=t2_test.shape)
 		for i in range(t2_test.shape[0]):
 			for j in range(t2_test.shape[1]):
@@ -328,16 +315,14 @@ def response_new():
 					Mt[i,j]=1
 
 
-		# Mz = np.zeros(shape=t1_test.shape)
-		# Mz0 = np.zeros(shape=t1_test.shape)
-		# for i in range(t1_test.shape[0]):
-		# 	for j in range(t1_test.shape[1]):
-		# 		if t1_test[i,j]!=0:
-		# 			Mz0[i,j]=t1_test[i,j]
-		# 			Mz[i,j]=t1_test[i,j]*0.1
+		#Градиенты
+		if gradient == 'snake':
+			GTx, GTy = snake_grad(t2_test.shape, resolution, grad_k_max, dk_scale)
+		elif gradient == 'circles':
+			GTx, GTy = circles_grad(t2_test.shape, resolution, grad_k_max, dk_scale)
+		else:
+			GTx, GTy = spiral_grad(t2_test.shape, resolution, grad_k_max, dk_scale)
 
-
-		GTx, GTy = EPI_center(t2_test.shape, resolution, grad_k_max)
 		N = round(GTx.shape[0])
 		t = np.linspace(0,N,N)
 
@@ -345,11 +330,9 @@ def response_new():
 		xv, yv = np.meshgrid(xx,yy)
 		rect = xv + 1j*yv
 		Mt_evo = np.zeros(shape=(Mt.shape[0],Mt.shape[1]),dtype=complex)
-		# Mz_evo = np.zeros(shape=(Mz.shape[0],Mz.shape[1]),dtype=complex)
 		k_map = k_space(FOV1, resolution)
-		traj = k_space(FOV1, resolution)
 
-		for k in range(1,N,3):
+		for k in range(1,N,dt):
 
 			#EPI
 			t_int = k
@@ -360,19 +343,11 @@ def response_new():
 			Mt_evo = Mt * np.exp(-t[k]*1e-6/t2_test) * np.exp(-1j*2*np.pi*(kx_coord*rect.imag+ky_coord*rect.real))
 
 			k_map[k_i,k_j] = signal(Mt_evo, t2_test)
-			traj[k_i, k_j] = 1+0*1j
 
 		#image reconstruction from k-space
 		k_map_fft = np.fft.fftshift(k_map)
 		k_map_ifft = np.fft.ifft2(k_map_fft)
 		k_map_fft = np.fft.fftshift(k_map_ifft)
-
-		plt.imshow(abs(traj))
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		img0 = base64.b64encode(buf.getvalue()).decode()
-		# plt.savefig('k_map_figure.png')
 
 
 		plt.imshow(abs(k_map))

@@ -28,7 +28,7 @@ def response_0_img():
 		gradient = request.form.get('gradient')
 		object = request.form.get('object')
 		grad_k_max = int(request.form.get('k_max'))*0.01
-		dk = int(request.form.get('dk'))
+		dk_scale = int(request.form.get('dk'))
 		dt = int(request.form.get('dt'))
 
 		file = open("static_data/"+object+".csv")
@@ -101,10 +101,10 @@ def response_0_img():
 
 			return GTx*Gx, GTy*Gy
 
-		def circles_grad(FOV1, resolution, grad_k_max):
+		def circles_grad(FOV1, resolution, grad_k_max, dk_scale):
 			pass
 
-		def spiral_grad(FOV1, resolution, grad_k_max):
+		def spiral_grad(FOV1, resolution, grad_k_max, dk_scale):
 			pass
 
 		def find_coord(k_i, k_j, FOV, resolution):
@@ -187,7 +187,8 @@ def response_new():
 		gradient = request.form.get('gradient')
 		object = request.form.get('object')
 		grad_k_max = int(request.form.get('k_max'))*0.01
-		dk = request.form.get('dk')
+		dk_scale = int(request.form.get('dk'))
+		dt = int(request.form.get('dt'))
 
 		file = open("static_data/"+object+".csv")
 
@@ -270,10 +271,10 @@ def response_new():
 
 			return GTx*Gx, GTy*Gy
 
-		def circles_grad(FOV1, resolution, grad_k_max):
+		def circles_grad(FOV1, resolution, grad_k_max, dk_scale):
 			pass
 
-		def spiral_grad(FOV1, resolution, grad_k_max):
+		def spiral_grad(FOV1, resolution, grad_k_max, dk_scale):
 			pass
 
 		def find_coord(k_i, k_j, FOV, resolution):

@@ -44,7 +44,6 @@ $(document).ready(function() {
             method: 'POST',
             success: function(response) {
                 loading.addClass('is-hidden');
-                $("#resultImg0").attr('src', `data:image/png;base64,${response.img0}`);
                 $("#resultImg1").attr('src', `data:image/png;base64,${response.img1}`);
                 $("#resultImg2").attr('src', `data:image/png;base64,${response.img2}`);
                 resultImg.removeClass('is-hidden');

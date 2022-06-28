@@ -83,7 +83,7 @@ def response_0_img():
 			GTy = np.ones(shape=(t1_y,))
 
 			#change range number
-			for i in range(round(FOV1[0]*grad_k_max)+1):
+			for i in range(round(FOV1[0]*grad_k_max/dk_scale)+1):
 			# for i in range(32):
 				if i % 2 != 0:
 					sign = -1
@@ -253,7 +253,7 @@ def response_new():
 			GTy = np.ones(shape=(t1_y,))
 
 			#change range number
-			for i in range(round(FOV1[0]*grad_k_max)+1):
+			for i in range(round(FOV1[0]*grad_k_max/dk_scale)+1):
 			# for i in range(32):
 				if i % 2 != 0:
 					sign = -1

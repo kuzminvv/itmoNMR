@@ -1,7 +1,5 @@
 $(document).ready(function() {
 
-    const glassOfWaterPreset = [10, 20, 30];
-
     const form = $("#sendData");
     const loading = $("#loading");
     const resultImg = $("#resultImg");

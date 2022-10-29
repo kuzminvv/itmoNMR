@@ -29,35 +29,33 @@ $(document).ready(function() {
         })
     }
 
-    function loadImgs() {
-        const data = $("#sendData").serialize();
-
+    $("#sumbitForm").on('click', function(e) {
+        e.preventDefault();
         resultImg.addClass('is-hidden');
         errorImg.addClass('is-hidden');
         loading.removeClass('is-hidden');
+        socket.emit('run_new', getFormData(form));
+    })
 
-        $.ajax({
-            url: "/run_new",
-            data: data,
-            method: 'POST',
-            success: function(response) {
-                loading.addClass('is-hidden');
-                $("#resultImg1").attr('src', `data:image/png;base64,${response.img1}`);
-                $("#resultImg2").attr('src', `data:image/png;base64,${response.img2}`);
-                resultImg.removeClass('is-hidden');
+    function getFormData($form){
+        var unindexed_array = $form.serializeArray();
+        var indexed_array = {};
 
-            },
-            error: function(response) {
-                loading.addClass('is-hidden');
-                errorImg.removeClass('is-hidden');
-                console.log(response);
-            }
-        })
+        $.map(unindexed_array, function(n, i){
+            indexed_array[n['name']] = n['value'];
+        });
+
+        return indexed_array;
     }
 
-    $("#sumbitForm").on('click', function(e) {
-        e.preventDefault();
-        loadImgs();
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on('new_res', function(response) {
+        const data = $("#sendData").serialize();
+        $("#resultImg1").attr('src', `data:image/png;base64,${response.img1}`);
+        $("#resultImg2").attr('src', `data:image/png;base64,${response.img2}`);
+        loading.addClass('is-hidden');
+        resultImg.removeClass('is-hidden');
     })
 
     // Load 0 img when form data change

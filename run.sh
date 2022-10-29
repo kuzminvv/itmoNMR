@@ -1,1 +1,1 @@
-docker-compose -f mri.yml up
+docker-compose -f docker-compose.yml up

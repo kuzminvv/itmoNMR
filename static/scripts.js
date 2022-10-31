@@ -51,11 +51,16 @@ $(document).ready(function() {
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('new_res', function(response) {
+        $(".title").text('Working...')
         const data = $("#sendData").serialize();
         $("#resultImg1").attr('src', `data:image/png;base64,${response.img1}`);
         $("#resultImg2").attr('src', `data:image/png;base64,${response.img2}`);
         loading.addClass('is-hidden');
         resultImg.removeClass('is-hidden');
+    })
+
+    socket.on('finish', function() {
+        $(".title").text('Done!')
     })
 
     // Load 0 img when form data change

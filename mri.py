@@ -1,4 +1,6 @@
 import base64
+import time
+
 from flask import Flask, render_template, request
 import matplotlib.pyplot as plt
 import numpy as np
@@ -364,6 +366,8 @@ def response_new(form_data):
 			'img1': img1,
 			'img2': img2
 		})
+		plt.close()
+	emit('finish')
 
 
 

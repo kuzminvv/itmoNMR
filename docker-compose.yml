@@ -6,4 +6,5 @@ services:
       - "80:5000"
     volumes:
       - "./:/app"
-    command: "sh -c 'pip install flask && pip install matplotlib && pip install numpy && pip install scipy && pip install flask-socketio && python mri.py'"
+    command: "sh -c 'pip install flask && pip install matplotlib && pip install numpy && pip install scipy && 
+    pip install flask-socketio && pip install simple-websocket && python mri.py'"

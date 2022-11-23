@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MRT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <main>
+        <h1 class="title">Эмулятор МРТ</h1>
+        <div class="forms">
+            <div class="col">
+                <h2 class="result__title">Параметры</h2>
+                <form class="form" action="/run_new" method="post" id="sendData">
+                    <h2 class="form__title">Выберите объект исследования:</h2>
+                    <div class="radio">
+                        <label for="glassOfWater" class="radio">Стакан воды (нет датасета, будет неверное
+                            вычисление)</label>
+                        <input id="glassOfWater" type="radio" {% if object=="glassOfWater" or object is not defined %}
+                               checked="checked" {% endif %} name="object" value="glassOfWater">
+                        <span class="radio__mark"></span>
+
+                    </div>
+                    <div class="radio">
+                        <label for="pine" class="radio">Ананас</label>
+                        <input id="pine" type="radio" {% if object=="pine" %} checked="checked" {% endif %} name="object"
+                               value="pine">
+                        <span class="radio__mark"></span>
+
+                    </div>
+                    <div class="radio">
+                        <label for="onion" class="radio">Лук</label>
+                        <input id="onion" type="radio" {% if object=="onion" %} checked="checked" {% endif %} name="object"
+                               value="onion">
+                        <span class="radio__mark"></span>
+
+                    </div>
+
+                    <div class="radio">
+                        <label for="brain" class="radio">Мозг человека</label>
+                        <input id="brain" type="radio" {% if object=="brain" %} checked="checked" {% endif %} name="object"
+                               value="brain">
+                        <span class="radio__mark"></span>
+
+                    </div>
+
+                    <h2 class="form__title">Выберите тип градиента:</h2>
+                    <div class="radio">
+                        <label for="snake" class="radio">Змейка</label>
+                        <input id="snake" type="radio" {% if gradient=="snake" or gradient is not defined %}
+                               checked="checked" {% endif %} name="gradient" value="snake">
+                        <span class="radio__mark"></span>
+
+                    </div>
+
+                    <div class="radio">
+                        <label for="circles" class="radio">Круги</label>
+                        <input id="circles" type="radio" {% if gradient=="circles" %} checked="checked" {% endif %}
+                               name="gradient" value="circles">
+                        <span class="radio__mark"></span>
+                    </div>
+
+                    <div class="radio">
+                        <label for="spiral" class="radio">Спираль </label>
+                        <input id="spiral" type="radio" {% if gradient=="spiral" %} checked="checked" {% endif %}
+                               name="gradient" value="spiral">
+                        <span class="radio__mark"></span>
+                    </div>
+
+
+                    <h2 class="form__title">Укажите дополнительные параметры:</h2>
+                    <div class="inputs">
+
+                        <div class="input k_max">
+                            <label for="k_max" class="label">k_max</label>
+                            <input id="k_max" type="text" name="k_max" value="5">
+                            <span class="k_max__mark"></span>
+
+                        </div>
+
+                        <div class="input dk">
+                            <label for="dk" class="label">dk</label>
+                            <input id="dk" type="text" name="dk" value="1">
+                            <span class="dk__mark"></span>
+
+                        </div>
+
+                        <div class="input dt">
+                            <label for="dt" class="label">dt</label>
+                            <input id="dt" type="text" name="dt" value="3">
+                            <span class="dt__mark"></span>
+
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="result__block">
+                <h2 class="result__title">Визуализация траектории К-пространства</h2>
+                <div id="loading0" class="loader js-loader0 is-hidden">
+                    <img src="{{ url_for('static', filename='loader.svg') }}" alt="Loader">
+                </div>
+                <img id="resultImg0" class="result__img is-hidden" src="" alt="Визуализация траектории К-пространства">
+            </div>
+        </div>
+
+        <!-- <h2>debug {{ array_size }}, {{ object }}, {{ gradient }}</h2> -->
+
+        <div class="button js-button">
+            <button class="button__submit js-submit" type="submit" id="sumbitForm">Старт</button>
+        </div>
+        <div id="loading" class="loader js-loader is-hidden">
+            <img src="{{ url_for('static', filename='loader.svg') }}" alt="Loader">
+        </div>
+        <div id="errorMessage" class="error js-error is-hidden">
+            <img class="error__img" src="{{ url_for('static', filename='error.svg') }}" alt="">
+            <span class="error__text">При загрузке данных произошла ошибка</span>
+        </div>
+        <div id="resultImg" class="result js-result is-hidden">
+            <div class="result__block">
+                <h2 class="result__title">Визуализация К-пространства</h2>
+                <canvas id="k_space_cvs" width="300" height="300"></canvas>
+<!--                <img id="resultImg1" class="result__img" src="" alt="Визуализация К-пространства">-->
+                <!-- <img id="resultImg1" class="result__img" src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Визуализация К-пространства"> -->
+            </div>
+            <div class="result__block">
+                <h2 class="result__title">Изображение результата</h2>
+<!--                <img id="resultImg2" class="result__img" src="" alt="Изображение результата">-->
+                <canvas id="mri_cvs" width="300" height="300"></canvas>
+                <!-- <img id="resultImg2" class="result__img" src="https://scientificrussia.ru/images/j/15hj-full.jpg" alt="Изображение результата"> -->
+            </div>
+        </div>
+    </main>
+<!--    <canvas id="canvasimg" width="300" height="300"></canvas>-->
+</body>
+
+</html>

@@ -4,6 +4,7 @@ services:
     build: ./itmoNMRapp
     container_name: mri
     environment:
+      - FLASK_ENV=development
       - PYTHONUNBUFFERED=True
     restart: on-failure
     volumes:

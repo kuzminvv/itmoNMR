@@ -1,23 +1,14 @@
 import base64
-import time
-
 from flask import Flask, render_template, request
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import trapz
-from numpy import inf
 from flask_socketio import SocketIO, emit
 import io
-import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socket_io = SocketIO(app)
-
-
-@app.route('/hello')
-def helloIndex():
-    return str(5 * 5)
 
 
 @app.route('/start')
@@ -355,16 +346,7 @@ def response_new(form_data):
             'img1': img1,
             'img2': img2
         })
-        plt.close()
-
-        #### Canvas drawing realization - in progress (doesn't work) ####
-        # k_map_fft_1dabs = np.concatenate(np.abs(k_map_fft))
-        # k_map_1dabs = np.concatenate(np.abs(k_map))
-        # # rgba_map[::4] = k_map_1dabs / np.max(k_map_1dabs) * 255
-        # # rgba_map[3::4] = 255
-        # k_map_fft_json = json.dumps(k_map_fft_1dabs.tolist())
-        # k_map_json = json.dumps(k_map_1dabs.tolist())
-        # emit('new_res_cvs', [k_map_json, k_map_fft_json])
+        plt.close('all')
 
     emit('finish')
 

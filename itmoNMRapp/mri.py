@@ -341,93 +341,33 @@ def response_new(form_data):
         k_map_ifft = np.fft.ifft2(k_map_fft)
         k_map_fft = np.fft.fftshift(k_map_ifft)
 
-        k_map_fft_1dabs = np.concatenate(np.abs(k_map_fft))
-        k_map_1dabs = np.concatenate(np.abs(k_map))
-        # rgba_map[::4] = k_map_1dabs / np.max(k_map_1dabs) * 255
-        # rgba_map[3::4] = 255
-        k_map_fft_json = json.dumps(k_map_fft_1dabs.tolist())
-        k_map_json = json.dumps(k_map_1dabs.tolist())
-        emit('newnewres', [k_map_json, k_map_fft_json])
+        plt.imshow(abs(k_map))
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        img1 = base64.b64encode(buf.getvalue()).decode()
+        plt.imshow(abs(k_map_fft))
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        img2 = base64.b64encode(buf.getvalue()).decode()
+        emit('new_res', {
+            'img1': img1,
+            'img2': img2
+        })
+        plt.close()
+
+        #### Canvas drawing realization - in progress (doesn't work) ####
+        # k_map_fft_1dabs = np.concatenate(np.abs(k_map_fft))
+        # k_map_1dabs = np.concatenate(np.abs(k_map))
+        # # rgba_map[::4] = k_map_1dabs / np.max(k_map_1dabs) * 255
+        # # rgba_map[3::4] = 255
+        # k_map_fft_json = json.dumps(k_map_fft_1dabs.tolist())
+        # k_map_json = json.dumps(k_map_1dabs.tolist())
+        # emit('new_res_cvs', [k_map_json, k_map_fft_json])
 
     emit('finish')
 
 
-@app.route('/run', methods=['GET', 'POST'])
-def response():
-    '''
-	Обработчик, который принимает данные от пользователя,
-	 и возвращает обновлённую с ними
-	object = request.form.get("object")
-	gradient = request.form.get("gradient")
-	'''
-
-    if request.method == 'POST':
-
-        gradient = request.form.get('gradient')
-        object = request.form.get('object')
-
-        file = open("static_data/" + str(object) + ".csv")
-
-        t2 = np.loadtxt(file, delimiter=",")
-
-        w = 20
-        gamma = 2
-
-        def whirlpool_matrix(n=9):
-            mat = np.array([[0] * n] * n)
-            value = 0
-            i, j = -1, n - 1
-            for offset in range(n, 0, -1):
-                value -= 1
-                i += 1
-                mat[i][j] = value
-            for m in range(n - 1, 0, -1):
-                for offset in range(m, 0, -1):
-                    value -= 1
-                    j += (-1) ** (m + n)
-                    mat[i][j] = value
-                for offset in range(m, 0, -1):
-                    value -= 1
-                    i += (-1) ** (m + n)
-                    mat[i][j] = value
-            return mat + n * n
-
-        mat = whirlpool_matrix(40)
-        Maa = mat / 160
-
-        kx_new = np.linspace(-5., 5., 40)
-        ky_new = np.linspace(-5., 5., 40)
-
-        new_t = np.linspace(0., 10., 1600)
-
-        def M_new(i, j):
-            acc = 0
-            kx_za = kx_new[i]
-            ky_za = ky_new[j]
-            t = Maa[i, j]
-            for x in (range(t2.shape[0])):
-                for y in range(t2.shape[1]):
-                    if t2[x, y] != 0:
-                        acc += np.exp(-(gamma * (((x - 140) * kx_za) + ((y - 112) * ky_za))) * 1j) * np.exp(
-                            -t / t2[x, y])
-            return acc.real, acc.imag
-
-        res_new = np.zeros((40, 40, 2))
-
-        for i in (range(40)):
-            for j in range(40):
-                res_new[i, j, 0], res_new[i, j, 1] = 1, 1  # M_new(i,j)
-
-        C = np.zeros((40, 40), dtype=np.complex_)
-        C = res_new[:, :, 0] + res_new[:, :, 1] * 1j
-        a = (np.fft.ifft2(C))
-        plt.imshow((abs(a)))
-        plt.savefig('saved_figure.png')
-
-        return render_template('index.html', array_size=np.shape(t2)[0], object=object, gradient=gradient)
-        return "<h1>The object value is: {}</h1><h1>The gradient value is: {}</h1><h1>Array size is{}</h1>".format(
-            object, gradient, np.shape(t2)[0])
-
-
 if __name__ == '__main__':
-    socket_io.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socket_io.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

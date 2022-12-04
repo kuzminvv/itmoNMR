@@ -1,10 +1,13 @@
 version: '3.7'
 services:
-  mri_python:
-    image: bitnami/python:latest
+  flask:
+    build: ./itmoNMRapp
+    container_name: mri
+    environment:
+      - PYTHONUNBUFFERED=True
+    restart: on-failure
+    volumes:
+      - ./itmoNMRapp:/itmoNMRapp
     ports:
       - "80:5000"
-    volumes:
-      - "./:/app"
-    command: "sh -c 'pip install flask && pip install matplotlib && pip install numpy && pip install scipy && 
-    pip install flask-socketio && pip install simple-websocket && python mri.py'"
+    command: python mri.py

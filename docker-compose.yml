@@ -1,13 +1,8 @@
-version: '3.7'
 services:
   flask:
-    build: ./itmoNMRapp
-    container_name: mri
-    environment:
-      - PYTHONUNBUFFERED=True
+    build: .
+    container_name: itmoNMRcontainer
     restart: on-failure
-    volumes:
-      - ./itmoNMRapp:/itmoNMRapp
     ports:
-      - "80:5000"
+      - "23141:5000"
     command: python mri.py

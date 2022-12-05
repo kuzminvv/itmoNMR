@@ -346,4 +346,4 @@ def response_new(form_data):
 
 
 if __name__ == '__main__':
-    socket_io.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socket_io.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

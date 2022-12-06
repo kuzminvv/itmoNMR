@@ -5,6 +5,7 @@ import numpy as np
 from scipy.integrate import trapz
 from flask_socketio import SocketIO, emit
 import io
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -332,25 +333,17 @@ def response_new(form_data):
         k_map_ifft = np.fft.ifft2(k_map_fft)
         k_map_fft = np.fft.fftshift(k_map_ifft)
 
-        plt.imshow(abs(k_map))
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        img1 = base64.b64encode(buf.getvalue()).decode()
-        plt.imshow(abs(k_map_fft))
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        img2 = base64.b64encode(buf.getvalue()).decode()
-        emit('new_res', {
-            'img1': img1,
-            'img2': img2
-        })
-        plt.close('all')
+        #### Canvas drawing realization - in progress (doesn't work) ####
+        k_map_fft_1dabs = np.concatenate(np.abs(k_map_fft))
+        k_map_1dabs = np.concatenate(np.abs(k_map))
+        # rgba_map[::4] = k_map_1dabs / np.max(k_map_1dabs) * 255
+        # rgba_map[3::4] = 255
+        k_map_fft_json = json.dumps(k_map_fft_1dabs.tolist())
+        k_map_json = json.dumps(k_map_1dabs.tolist())
+        emit('new_res_cvs', [k_map_json, k_map_fft_json])
 
     emit('finish')
 
 
 if __name__ == '__main__':
-    socket_io.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
-
+    socket_io.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

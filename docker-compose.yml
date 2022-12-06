@@ -1,8 +1,8 @@
+version: '3'
 services:
   flask:
-    build: .
+    build: ./itmoNMRapp
     container_name: itmoNMRcontainer
     restart: on-failure
     ports:
       - "23141:5000"
-    command: python mri.py

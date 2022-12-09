@@ -11,7 +11,7 @@ app.config['SECRET_KEY'] = 'secret!'
 socket_io = SocketIO(app)
 
 
-@app.route('/start')
+@app.route('/')
 def template():
     return render_template('index.html')
 
